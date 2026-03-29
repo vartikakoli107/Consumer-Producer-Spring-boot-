@@ -1,5 +1,6 @@
 package com.example.OrderSystem;
 
+import com.example.OrderSystem.Queue.OrderQueue;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -8,9 +9,11 @@ import java.util.List;
 public class OrderService {
 
 	public OrderRepository orderRepository ;
+	public OrderQueue orderQueue;
 	
-	public OrderService(OrderRepository orderRepository){
+	public OrderService(OrderRepository orderRepository, OrderQueue queue){
 		this.orderRepository = orderRepository;
+		this.orderQueue = queue;
 	}
 	
 	public Order getOrder(Long id){
@@ -26,12 +29,14 @@ public class OrderService {
 		//order.setOrderId(124);
 		order.setItem(item);
 		order.setStatus("Pending");
-		
 		Order savedOrder = orderRepository.save(order);
-		orderAsyncProcess(savedOrder.orderId);
+		//send to queue instead of async
+		orderQueue.addOrder(savedOrder.orderId);
 		return savedOrder;
 	}
 	
+	
+	// Basic async call
 	public void orderAsyncProcess(Long orderId){
 		try{
 			Order order = orderRepository.findById(orderId).orElse(null);
