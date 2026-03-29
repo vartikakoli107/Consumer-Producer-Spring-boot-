@@ -6,12 +6,17 @@ import com.example.OrderSystem.Queue.OrderQueue;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 @Component
 public class OrderWorker {
 	
 	
 	public OrderQueue orderQueue;
 	public OrderRepository orderRepository;
+	public ExecutorService executor = Executors.newFixedThreadPool(3);
 	
 	public OrderWorker(OrderQueue orderQueue, OrderRepository orderRepository){
 		this.orderRepository = orderRepository;
@@ -22,7 +27,7 @@ public class OrderWorker {
 	public void startWorker() {
 		for(int i =0; i<3; i++) {
 			//sets worker0, worker1 as thread name
-			new Thread((this::run), "worker" + i).start();
+			executor.submit((this::run), "worker" + i);
 		}
 	}
 	
